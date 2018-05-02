@@ -1,7 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-trajdir = '/data2/coarse_graining/POPC.POPE.POPS.POSM.POPA/IN/analysis/'
+system = 'POPC.POPE.POPS.POSM.POPA.EQUAL'
+i_o = 'OUT'
+trajdir = '/data2/coarse_graining/' + system + "/" + i_o + '/analysis/'
+print 'trajdir ', trajdir
+
 
 popc = np.load(trajdir + 'resid_tmax.POPC.npy')
 pope = np.load(trajdir + 'resid_tmax.POPE.npy')
@@ -18,16 +22,25 @@ popa_sort = np.sort(popa[:,1])
 posm_sort = np.sort(posm[:,1])
 
 fig, ax = plt.subplots()
+labelgroup = ['POPC', 'POPE', 'POPS', 'POPA', 'POSM']
+data = [popc, pope, pops, popa, posm]
 
-data = [popc_sort, pope_sort, pops_sort, popa_sort, posm_sort]
-ax.boxplot(data, whis =5)   #whis = 3 will extend whiskers 
-ax.set_xticklabels(['POPC', 'POPE', 'POPS', 'POPA', 'POSM'])
+data_sort = [popc_sort, pope_sort, pops_sort, popa_sort, posm_sort]
+a = ax.boxplot(data_sort, whis = 3)   #whis = 3 will extend whiskers 
+ax.set_xticklabels(labelgroup)
 ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
-plt.show()
+ax.set_ylabel('# ns Tmax')
+plt.title(system + ' ' + i_o)
+plt.savefig(trajdir + 'boxplot.png')
 
-
-
+dct_outliers = {}
+for index, name in enumerate(labelgroup):
+	outliers_values = a['fliers'][index].get_data()[1]  #this accesses the outliers from the plot
+	dct_outliers['outliers_%s' % name] = []   #create a dictionary of lists, below we will add the outliers to the list
+	for val in outliers_values:
+			#print data[index][np.where(data[index][:,1] == val)]    #data and labelgroup are the same order, so you can access the index the same way
+			dct_outliers['outliers_%s' % name].append(list(data[index][np.where(data[index][:,1] == val)]))   #append to your created list
 
 
 
